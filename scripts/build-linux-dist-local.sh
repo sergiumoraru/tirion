@@ -4,7 +4,9 @@ set -euo pipefail
 
 VERSION="${1:-vdev}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-GO_VERSION="$(awk '$1 == "go" { print $2; exit }' "$REPO_ROOT/go.mod")"
+# Prefer the recommended toolchain over the minimum language version.
+GO_VERSION="$(awk '$1 == "toolchain" { sub(/^go/, "", $2); print $2; exit }' "$REPO_ROOT/go.mod")"
+GO_VERSION="${GO_VERSION:-$(awk '$1 == "go" { print $2; exit }' "$REPO_ROOT/go.mod")}"
 IMAGE="${DOCKER_IMAGE:-golang:$GO_VERSION}"
 PLATFORM="${DOCKER_PLATFORM:-linux/amd64}"
 DOCKER_CONTEXT_NAME="${DOCKER_CONTEXT_NAME:-}"

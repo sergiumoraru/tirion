@@ -1,7 +1,7 @@
 impact_report:
   stage: test
   # Keep this version aligned with go.mod.
-  image: golang:1.26.8
+  image: golang:1.26
   rules:
     - if: '$ENABLE_ESTATE_IMPACT == "true" && $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_PROJECT_ID == $CI_PROJECT_ID'
   variables:

@@ -351,6 +351,19 @@ results, `completeness.upstream.truncated` is true. Check it before reading the
 absence of a caller as meaningful. `POST /api/trace/expand` returns 404
 `NOT_FOUND` for a `callerId` outside the selected workspace.
 
+Downstream, an outbound HTTP call links to at most 50 matching indexed endpoints;
+a call to a path shared by more services is capped there and marks
+`completeness.downstream.truncated`. A call on a declared HTTP client interface
+(Feign, Retrofit, Spring HTTP interfaces) has `medium` confidence when the
+`Interface.method` matches. When only the method name matches, typically
+because the receiver is a field or variable, the link is made only if exactly
+one client interface declares that name, and it has `low` confidence.
+Unresolved bare calls with short accessor-shaped names (`get`, `set`, `is`,
+`has`, `add`, `put`, `remove`, or `clear` followed by an uppercase letter, digit,
+or underscore, such as `getId` or `isEmpty`) are omitted as noise; other names
+such as `issueRefund` or `hashPassword` are kept. Short qualified calls whose
+text starts with one of those words (`HashMap.put`, `Set.add`) are also omitted.
+
 Flow requires `start`: a function, endpoint path, `METHOD /path`, `queue:NAME`,
 `job:ClassName`, or `scheduled:ClassOrMethod`. `%`, `_`, and `\` in `start` are
 matched literally. Controls include `depth`,

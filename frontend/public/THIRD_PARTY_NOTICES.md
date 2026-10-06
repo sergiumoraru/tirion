@@ -10,11 +10,11 @@ retrieved from the upstream revision recorded in the npm version metadata.
 Retain this file with distributed frontend assets. Update it when dependency versions
 change. These licenses apply to their respective components, not to all of Tirion.
 
-## @babel/helper-string-parser 7.27.1
+## @babel/helper-string-parser 7.29.7
 
-- @babel/helper-string-parser 7.27.1 - LICENSE
-- @babel/helper-validator-identifier 7.28.5 - LICENSE
-- @babel/types 7.28.6 - LICENSE
+- @babel/helper-string-parser 7.29.7 - LICENSE
+- @babel/helper-validator-identifier 7.29.7 - LICENSE
+- @babel/types 7.29.8 - LICENSE
 
 ```text
 MIT License
@@ -41,9 +41,9 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ```
 
-## @babel/parser 7.28.6
+## @babel/parser 7.29.9
 
-- @babel/parser 7.28.6 - LICENSE
+- @babel/parser 7.29.9 - LICENSE
 
 ```text
 Copyright (C) 2012-2014 by various contributors (see AUTHORS)
@@ -93,18 +93,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## @vue/compiler-core 3.5.27
+## @vue/compiler-core 3.5.43
 
-- @vue/compiler-core 3.5.27 - LICENSE
-- @vue/compiler-dom 3.5.27 - LICENSE
-- @vue/compiler-sfc 3.5.27 - LICENSE
-- @vue/compiler-ssr 3.5.27 - LICENSE
-- @vue/reactivity 3.5.27 - LICENSE
-- @vue/runtime-core 3.5.27 - LICENSE
-- @vue/runtime-dom 3.5.27 - LICENSE
-- @vue/server-renderer 3.5.27 - LICENSE
-- @vue/shared 3.5.27 - LICENSE
-- vue 3.5.27 - LICENSE
+- @vue/compiler-core 3.5.43 - LICENSE
+- @vue/compiler-dom 3.5.43 - LICENSE
+- @vue/compiler-sfc 3.5.43 - LICENSE
+- @vue/compiler-ssr 3.5.43 - LICENSE
+- @vue/reactivity 3.5.43 - LICENSE
+- @vue/runtime-core 3.5.43 - LICENSE
+- @vue/runtime-dom 3.5.43 - LICENSE
+- @vue/server-renderer 3.5.43 - LICENSE
+- @vue/shared 3.5.43 - LICENSE
+- vue 3.5.43 - LICENSE
 
 ```text
 The MIT License (MIT)
@@ -214,9 +214,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## entities 7.0.0
+## entities 7.0.1
 
-- entities 7.0.0 - LICENSE
+- entities 7.0.1 - LICENSE
 
 ```text
 Copyright (c) Felix Böhm
@@ -499,9 +499,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OU
 IN THE SOFTWARE.
 ```
 
-## source-map-js 1.2.1
+## source-map-js 1.2.2
 
-- source-map-js 1.2.1 - LICENSE
+- source-map-js 1.2.2 - LICENSE
 
 ```text
 Copyright (c) 2009-2011, Mozilla Foundation and contributors

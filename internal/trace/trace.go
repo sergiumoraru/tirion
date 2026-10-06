@@ -1165,7 +1165,7 @@ func TraceDownstreamChildrenTuningStats(pool Queryer, callerID string, parentDep
 		}
 
 		// HTTP interface method (Retrofit/Feign style)
-		httpInterfaceMethods := checkForHttpInterfaceMethodCached(cache, pool, calleeName)
+		httpInterfaceMethods, nameOnly := checkForHttpInterfaceMethodCached(cache, pool, calleeName)
 		if len(httpInterfaceMethods) > 0 {
 			for _, httpMethod := range httpInterfaceMethods {
 				if !limiter.allow() {
@@ -1176,7 +1176,7 @@ func TraceDownstreamChildrenTuningStats(pool Queryer, callerID string, parentDep
 					Line:           lineNum,
 					Depth:          depth + 1,
 					EdgeType:       edgeTypeHTTP,
-					Confidence:     confidenceMedium,
+					Confidence:     httpInterfaceConfidence(nameOnly),
 					IsCrossService: true,
 					HttpMethod:     httpMethod.HttpMethod,
 					HttpTarget:     httpMethod.UrlPattern,
@@ -2010,7 +2010,7 @@ func traceDownstream(pool Queryer, callerIDs []string, maxDepth, maxNodes int, r
 				}
 
 				// HTTP interface method (Retrofit/Feign style)
-				httpInterfaceMethods := checkForHttpInterfaceMethodCached(cache, pool, calleeName)
+				httpInterfaceMethods, nameOnly := checkForHttpInterfaceMethodCached(cache, pool, calleeName)
 				if len(httpInterfaceMethods) > 0 {
 					for _, httpMethod := range httpInterfaceMethods {
 						if !limiter.allow() {
@@ -2021,7 +2021,7 @@ func traceDownstream(pool Queryer, callerIDs []string, maxDepth, maxNodes int, r
 							Line:           lineNum,
 							Depth:          parent.Depth + 1,
 							EdgeType:       edgeTypeHTTP,
-							Confidence:     confidenceMedium,
+							Confidence:     httpInterfaceConfidence(nameOnly),
 							IsCrossService: true,
 							HttpMethod:     httpMethod.HttpMethod,
 							HttpTarget:     httpMethod.UrlPattern,
@@ -2902,7 +2902,7 @@ func expandDownstream(pool Queryer, parent *TreeNode, callerID string, visited m
 		}
 
 		// Try to match this HTTP call to an endpoint
-		endpoints := matchEndpointCached(cache, pool, httpCall.HttpMethod, httpCall.UrlPattern, extractRepo(callerID))
+		endpoints := capEndpointMatches(matchEndpointCached(cache, pool, httpCall.HttpMethod, httpCall.UrlPattern, extractRepo(callerID)), limiter)
 		endpointSeen := make(map[string]bool)
 		for _, ep := range endpoints {
 			if !limiter.allow() {
@@ -3070,7 +3070,7 @@ func expandDownstream(pool Queryer, parent *TreeNode, callerID string, visited m
 		}
 
 		// Check if this is an HTTP interface method (Retrofit/Feign style)
-		httpInterfaceMethods := checkForHttpInterfaceMethodCached(cache, pool, calleeName)
+		httpInterfaceMethods, nameOnly := checkForHttpInterfaceMethodCached(cache, pool, calleeName)
 		if len(httpInterfaceMethods) > 0 {
 			for _, httpMethod := range httpInterfaceMethods {
 				// Create a node for the HTTP interface call
@@ -3079,14 +3079,14 @@ func expandDownstream(pool Queryer, parent *TreeNode, callerID string, visited m
 					Line:           lineNum,
 					Depth:          parent.Depth + 1,
 					EdgeType:       edgeTypeHTTP,
-					Confidence:     confidenceMedium,
+					Confidence:     httpInterfaceConfidence(nameOnly),
 					IsCrossService: true,
 					HttpMethod:     httpMethod.HttpMethod,
 					Evidence:       evidenceForHTTPInterface(httpMethod),
 				}
 
 				// Try to match to backend endpoint
-				endpoints := matchEndpointCached(cache, pool, httpMethod.HttpMethod, httpMethod.UrlPattern, extractRepo(callerID))
+				endpoints := capEndpointMatches(matchEndpointCached(cache, pool, httpMethod.HttpMethod, httpMethod.UrlPattern, extractRepo(callerID)), limiter)
 				endpointSeen := make(map[string]bool)
 				for _, ep := range endpoints {
 					if !limiter.allow() {
@@ -3298,32 +3298,17 @@ func expandDownstream(pool Queryer, parent *TreeNode, callerID string, visited m
 	}
 }
 
-// checkForHttpInterfaceMethod checks if a method call is to an HTTP interface (Retrofit/Feign)
-func checkForHttpInterfaceMethod(pool Queryer, calleeName string) []HttpInterfaceMethod {
-	parts := strings.Split(calleeName, ".")
-	if len(parts) >= 2 {
-		typeName := parts[len(parts)-2]
-		methodName := parts[len(parts)-1]
-
-		// Try with full interface.method
-		httpMethod := findHttpInterfaceMethod(pool, typeName, methodName)
-		if httpMethod != nil {
-			return []HttpInterfaceMethod{*httpMethod}
-		}
-	}
-
-	// Try just the method name
-	if len(parts) >= 1 {
-		methodName := parts[len(parts)-1]
-		return findHttpInterfaceMethodByName(pool, methodName)
-	}
-
-	return nil
-}
-
-func checkForHttpInterfaceMethodCached(cache *traceCache, pool Queryer, calleeName string) []HttpInterfaceMethod {
+// checkForHttpInterfaceMethodCached maps an unresolved call to declared HTTP
+// client interface methods (Feign, Retrofit, Spring HTTP interfaces). An
+// Interface.method match is preferred. Otherwise the receiver is usually a field
+// or variable name, so only the method name is known: that fallback is accepted
+// only when exactly one client interface declares the name, and nameOnly tells
+// callers to label the link low confidence.
+func checkForHttpInterfaceMethodCached(cache *traceCache, pool Queryer, calleeName string) (methods []HttpInterfaceMethod, nameOnly bool) {
 	if cache == nil {
-		return checkForHttpInterfaceMethod(pool, calleeName)
+		// HTTP interface resolution needs the workspace-scoped index; there is no
+		// unscoped fallback.
+		return nil, false
 	}
 
 	parts := strings.Split(calleeName, ".")
@@ -3332,18 +3317,42 @@ func checkForHttpInterfaceMethodCached(cache *traceCache, pool Queryer, calleeNa
 		methodName := parts[len(parts)-1]
 		fullKey := strings.ToLower(typeName + "." + methodName)
 		if methods, ok := cache.httpInterfaceByFull[fullKey]; ok {
-			return methods
+			return methods, false
 		}
 	}
 
 	if len(parts) >= 1 {
 		methodName := parts[len(parts)-1]
-		if methods, ok := cache.httpInterfaceByName[strings.ToLower(methodName)]; ok {
-			return methods
+		if methods, ok := cache.httpInterfaceByName[strings.ToLower(methodName)]; ok && declaredByOneInterface(methods) {
+			return methods, true
 		}
 	}
 
-	return nil
+	return nil, false
+}
+
+// httpInterfaceConfidence labels an HTTP-interface hop: a link attributed by
+// method name alone is a weaker inference than an Interface.method match.
+func httpInterfaceConfidence(nameOnly bool) string {
+	if nameOnly {
+		return confidenceLow
+	}
+	return confidenceMedium
+}
+
+// declaredByOneInterface reports whether all methods belong to a single client
+// interface; a name shared by several interfaces cannot be attributed.
+func declaredByOneInterface(methods []HttpInterfaceMethod) bool {
+	if len(methods) == 0 {
+		return false
+	}
+	first := methods[0].Repo + "\x00" + methods[0].File + "\x00" + methods[0].InterfaceName
+	for _, m := range methods[1:] {
+		if m.Repo+"\x00"+m.File+"\x00"+m.InterfaceName != first {
+			return false
+		}
+	}
+	return true
 }
 
 func traceUpstreamWithMode(pool Queryer, funcName string, callerIDs []string, maxDepth, maxNodes int, tuning TraceTuning) (roots []*TreeNode, mode string, stats LimitStats) {
@@ -4360,14 +4369,36 @@ func extractClassName(callerID string) string {
 	return ""
 }
 
+var genericMethodPrefixes = []string{"get", "set", "is", "has", "add", "remove", "put", "clear"}
+
+// isGenericMethod reports short accessor-shaped names (get/set/is/has/add/put/
+// remove/clear, alone or followed by a camelCase, digit, or underscore boundary)
+// that are noise when a call stays unresolved. For a bare name the prefix must
+// end at a word boundary: issueRefund, hashPassword, and settleInvoice are
+// ordinary calls. Qualified names (HashMap.put, svc.getUser) keep the coarse
+// whole-name prefix rule, which also hides common collection calls.
 func isGenericMethod(name string) bool {
-	generic := map[string]bool{
-		"get": true, "set": true, "is": true, "has": true,
-		"add": true, "remove": true, "put": true, "clear": true,
+	if len(name) >= 15 {
+		return false
 	}
-	lower := strings.ToLower(name)
-	for prefix := range generic {
-		if strings.HasPrefix(lower, prefix) && len(name) < 15 {
+	if strings.Contains(name, ".") {
+		lower := strings.ToLower(name)
+		for _, prefix := range genericMethodPrefixes {
+			if strings.HasPrefix(lower, prefix) {
+				return true
+			}
+		}
+		return false
+	}
+	for _, prefix := range genericMethodPrefixes {
+		if len(name) < len(prefix) || !strings.EqualFold(name[:len(prefix)], prefix) {
+			continue
+		}
+		if len(name) == len(prefix) {
+			return true
+		}
+		next := name[len(prefix)]
+		if next == '_' || (next >= 'A' && next <= 'Z') || (next >= '0' && next <= '9') {
 			return true
 		}
 	}
@@ -4711,6 +4742,22 @@ func findHttpCalls(pool Queryer, callerID string, snapshotIDs []int64, includeLe
 	return calls
 }
 
+// endpointMatchLimit caps how many indexed endpoints one HTTP call may match.
+// Pattern queries fetch one more row so callers can tell a capped list (shared
+// paths such as /health across many services) from a complete one.
+const endpointMatchLimit = 50
+
+// capEndpointMatches trims a match list to endpointMatchLimit and records the
+// truncation on the trace, so completeness reporting does not claim the list
+// of handlers is exhaustive.
+func capEndpointMatches(endpoints []MatchedEndpoint, limiter *nodeLimiter) []MatchedEndpoint {
+	if len(endpoints) > endpointMatchLimit {
+		limiter.markIncomplete()
+		return endpoints[:endpointMatchLimit]
+	}
+	return endpoints
+}
+
 func matchEndpointCached(cache *traceCache, pool Queryer, httpMethod, urlPattern, callerRepo string) []MatchedEndpoint {
 	method := normalizeHttpMethod(httpMethod)
 	if cache != nil {
@@ -4767,7 +4814,7 @@ func MatchEndpointsChecked(ctx context.Context, pool Queryer, httpMethod, urlPat
 
 func attachHTTPResolutionTargets(pool Queryer, cache *traceCache, callerID string, httpNode *TreeNode, depth, maxDepth int, limiter *nodeLimiter) bool {
 	endpointSeen := make(map[string]bool)
-	endpoints := matchEndpointCached(cache, pool, httpNode.HttpMethod, httpNode.HttpTarget, extractRepo(callerID))
+	endpoints := capEndpointMatches(matchEndpointCached(cache, pool, httpNode.HttpMethod, httpNode.HttpTarget, extractRepo(callerID)), limiter)
 	for _, ep := range endpoints {
 		if !limiter.allow() {
 			return true
@@ -5311,7 +5358,7 @@ func matchEndpointWithPatternChecked(ctx context.Context, pool Queryer, httpMeth
 			           AND f.path NOT LIKE '.codebase-snapshots/%%'
 			           AND %s
 			         ORDER BY r.name, f.path, method, path, COALESCE(e.line_number, 0), handler
-			         LIMIT 5`, traceSnapshotClause("f.snapshot_id", 3, includeLegacy))
+			         LIMIT %d`, traceSnapshotClause("f.snapshot_id", 3, includeLegacy), endpointMatchLimit+1)
 			args = []interface{}{canonicalMethod, pattern, snapshotIDs}
 		} else {
 			likePattern := buildEndpointLikePattern(pattern)
@@ -5332,7 +5379,7 @@ func matchEndpointWithPatternChecked(ctx context.Context, pool Queryer, httpMeth
 			           AND f.path NOT LIKE '.codebase-snapshots/%%'
 			           AND %s
 			         ORDER BY r.name, f.path, method, path, COALESCE(e.line_number, 0), handler
-			         LIMIT 5`, sqlEscapeLikeExpr("COALESCE(NULLIF(e.path_canonical, ''), lower(e.path))"), traceSnapshotClause("f.snapshot_id", 5, includeLegacy))
+			         LIMIT %d`, sqlEscapeLikeExpr("COALESCE(NULLIF(e.path_canonical, ''), lower(e.path))"), traceSnapshotClause("f.snapshot_id", 5, includeLegacy), endpointMatchLimit+1)
 			args = []interface{}{canonicalMethod, strings.ToLower(likePattern), strings.ToLower(pattern), escapeLikeLiteral(strings.ToLower(pattern)), snapshotIDs}
 		}
 		rows, err := pool.Query(ctx, query, args...)
@@ -6523,38 +6570,6 @@ func findHttpInterfaceMethod(pool Queryer, interfaceName, methodName string) *Ht
 		return nil
 	}
 	return &method
-}
-
-// findHttpInterfaceMethodByName finds HTTP method by just the method name (when interface unknown)
-func findHttpInterfaceMethodByName(pool Queryer, methodName string) []HttpInterfaceMethod {
-	query := `
-		SELECT r.name, f.path, i.name, h.method_name, h.http_method, h.url_pattern, COALESCE(h.line_number, 0)
-		FROM http_interface_methods h
-		JOIN interfaces i ON h.interface_id = i.id
-		JOIN files f ON i.file_id = f.id
-		JOIN repositories r ON f.repo_id = r.id
-		WHERE h.method_name = $1
-		ORDER BY r.name, f.path, i.name, h.line_number, h.id
-		LIMIT 5`
-
-	rows, err := pool.Query(queryContext(pool), query, methodName)
-	if err != nil {
-		return nil
-	}
-	defer rows.Close()
-
-	var methods []HttpInterfaceMethod
-	for rows.Next() {
-		var m HttpInterfaceMethod
-		if err := rows.Scan(&m.Repo, &m.File, &m.InterfaceName, &m.MethodName, &m.HttpMethod, &m.UrlPattern, &m.LineNumber); err != nil {
-			return nil
-		}
-		methods = append(methods, m)
-	}
-	if rows.Err() != nil {
-		return nil
-	}
-	return methods
 }
 
 // resolveInterfaceMethodCall resolves a method call that might be on an interface type

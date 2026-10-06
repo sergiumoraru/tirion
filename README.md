@@ -10,7 +10,7 @@ Development focuses on the accuracy and usability of existing cross-repository r
 
 ## Quick Start
 
-[SETUP.md](SETUP.md) covers prerequisites (Go, a C compiler, PostgreSQL 16 with `pg_trgm`, Node.js 24) and explains each step below. Tirion never guesses a database, so `DATABASE_URL` must be set in every terminal that runs it.
+[SETUP.md](SETUP.md) covers prerequisites (Go, a C compiler, PostgreSQL 16 with `pg_trgm`, Node.js 24 or newer) and explains each step below. Tirion never guesses a database, so `DATABASE_URL` must be set in every terminal that runs it.
 
 ```bash
 # 1. Point every command at a dedicated database.

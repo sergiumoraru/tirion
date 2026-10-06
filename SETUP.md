@@ -28,7 +28,7 @@ in [DOCS/server-api.md](DOCS/server-api.md), and MCP tools in [DOCS/mcp.md](DOCS
   CGO-compatible MinGW toolchain and Git Bash for the examples below.
 - PostgreSQL 16 (the portable CI baseline) with `pg_trgm` available (install the
   distribution's contrib package where it is packaged separately).
-- Node.js 24 LTS and npm for the UI. Dependencies are locked in
+- Node.js 24 or newer and npm for the UI. Dependencies are locked in
   `frontend/package-lock.json`.
 
 Clone the repository and enter the checkout:
