@@ -1,0 +1,13 @@
+{
+  "language": "clle",
+  "functions": [
+    "QSHCALLC"
+  ],
+  "imports": [],
+  "calls": {
+    "QSHCALLC": [
+      "QSHSTDOUTR"
+    ]
+  },
+  "data_accesses": []
+}

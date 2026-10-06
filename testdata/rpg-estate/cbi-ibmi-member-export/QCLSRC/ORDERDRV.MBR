@@ -1,0 +1,5 @@
+PGM
+             DCLF       FILE(ORDERDSP)
+             SNDRCVF    RCDFMT(ORENTRY)
+             CALL       PGM(CBIORD100)
+ENDPGM

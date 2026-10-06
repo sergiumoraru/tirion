@@ -1,0 +1,6 @@
+A                                      DSPSIZ(24 80 *DS3)
+A          R ORENTRY
+A                                  1  2'Create Order'
+A            ORDERID       12A  B  5  2
+A            CUSTOMER      10A  B  6  2
+A            CONFIRM        1A  B  8  2

@@ -1,0 +1,201 @@
+name: Portable Checks
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portable-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native-packages:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+      - name: Setup Windows native compiler
+        id: msys2
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
+        with:
+          msystem: UCRT64
+          update: true
+          path-type: inherit
+          install: mingw-w64-ucrt-x86_64-gcc
+      - name: Build Linux packages without publishing
+        if: runner.os == 'Linux'
+        shell: bash
+        run: bash scripts/build-dist.sh ci
+      - name: Build Windows MCP package without publishing
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          MSYS2_ROOT: ${{ steps.msys2.outputs.msys2-location }}
+        run: |
+          $env:PATH = (Join-Path $env:MSYS2_ROOT 'ucrt64\bin') + ';' + $env:PATH
+          ./scripts/build-windows-release.ps1 -Version ci -SkipDbCheck
+      - name: Exercise packaged MCP executables without external services
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { spawnSync } from 'node:child_process';
+          import { mkdtempSync, rmSync } from 'node:fs';
+          import { tmpdir } from 'node:os';
+          import { resolve, join } from 'node:path';
+          const windows = process.platform === 'win32';
+          const directory = windows ? 'dist/windows-amd64-mcp' : `dist/linux-${process.arch === 'x64' ? 'amd64' : process.arch}`;
+          const cwd = mkdtempSync(join(tmpdir(), 'tirion-package-check-'));
+          const input = [
+            {jsonrpc: '2.0', id: 'init', method: 'initialize', params: {protocolVersion: '2024-11-05'}},
+            {jsonrpc: '2.0', id: 'ping', method: 'ping'},
+            {jsonrpc: '2.0', id: 'tools', method: 'tools/list'},
+          ].map(JSON.stringify).join('\n') + '\n';
+          try {
+            for (const command of ['mcp-intel', 'mcp-guard']) {
+              const binary = resolve(directory, command + (windows ? '.exe' : ''));
+              const result = spawnSync(binary, [], {
+                cwd, input, encoding: 'utf8', timeout: 30000, maxBuffer: 1024 * 1024,
+                env: {PATH: process.env.PATH, SystemRoot: process.env.SystemRoot || '', HOME: cwd, USERPROFILE: cwd},
+              });
+              assert.equal(result.error, undefined, command);
+              assert.equal(result.status, 0, result.stderr);
+              const responses = result.stdout.trim().split(/\r?\n/).map(JSON.parse);
+              assert.deepEqual(responses.map(r => r.id), ['init', 'ping', 'tools']);
+              assert(responses.every(r => r.jsonrpc === '2.0' && !r.error));
+              assert.equal(responses[0].result.protocolVersion, '2024-11-05');
+              const tools = responses[2].result.tools;
+              assert(tools.some(t => t.name === (command === 'mcp-intel' ? 'codebase_verify' : 'verify_diff')));
+              console.log(`PASS ${command}: initialize, ping, tools/list`);
+            }
+          } finally {
+            rmSync(cwd, {recursive: true, force: true});
+          }
+          NODE
+
+  parser-fixtures:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: tirion_tests
+          POSTGRES_USER: tirion
+          POSTGRES_PASSWORD: isolated_ci_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U tirion -d tirion_tests"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      DATABASE_URL: postgres://tirion:isolated_ci_only@localhost:5432/tirion_tests?sslmode=disable
+      TIRION_WORKSPACE_LIVE_TESTS: '1'
+      TIRION_PIPELINE_LIVE_TESTS: '1'
+      # Make a missing or unreachable database a failure instead of a skip.
+      TIRION_REQUIRE_LIVE_DB: '1'
+      TIRION_TEST_BIN: ${{ github.workspace }}/bin
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+
+      - name: Build helpers for database-backed suites
+        run: bash scripts/build-local.sh
+      - name: Run Go tests including parser fixtures and database suites
+        run: go test -p 1 ./...
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
+
+  estate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: tirion_ci
+          POSTGRES_USER: tirion
+          POSTGRES_PASSWORD: isolated_ci_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U tirion -d tirion_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      DATABASE_URL: postgres://tirion:isolated_ci_only@localhost:5432/tirion_ci?sslmode=disable
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+      - name: Build complete native command set
+        run: bash scripts/build-local.sh
+      - name: Index clean synthetic repositories and check live API
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$(mktemp -d)"
+          export TIRION_API_TOKEN="$(openssl rand -hex 32)"
+          echo "::add-mask::$TIRION_API_TOKEN"
+          for name in catalog-api storefront; do
+            cp -R "testdata/estate-fixtures/$name" "$root/$name"
+            git -C "$root/$name" init -q
+            git -C "$root/$name" add .
+            git -C "$root/$name" -c user.name=Fixture -c user.email=fixture@example.invalid commit -qm "Fixture baseline"
+          done
+          ./bin/tirion index -root "$root" -workspace default-main -skip-unchanged=false
+          ./bin/tirion serve -port 18080 >"$root/api.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true; wait "$server_pid" 2>/dev/null || true; cat "$root/api.log"' EXIT
+          ready=0
+          for attempt in $(seq 1 60); do
+            if curl -fsS -H "X-Tirion-Token: $TIRION_API_TOKEN" http://localhost:18080/api/health >/dev/null; then
+              ready=1
+              break
+            fi
+            kill -0 "$server_pid"
+            sleep 1
+          done
+          if [[ "$ready" != 1 ]]; then
+            echo "Fixture API did not become ready" >&2
+            exit 1
+          fi
+          BASE_URL=http://localhost:18080 node scripts/estate-fixture-check.mjs "$root/catalog-api"

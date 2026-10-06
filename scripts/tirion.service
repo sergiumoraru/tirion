@@ -1,0 +1,32 @@
+[Unit]
+Description=Tirion API Server
+After=postgresql.service network.target
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=tirion
+Group=tirion
+WorkingDirectory=/opt/tirion
+ExecStart=/opt/tirion/tirion serve -port 8080
+Restart=on-failure
+RestartSec=5
+
+StateDirectory=tirion
+StateDirectoryMode=0700
+Environment=HOME=/var/lib/tirion
+EnvironmentFile=/opt/tirion/.env
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=tirion
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/data/tirion/repos
+
+[Install]
+WantedBy=multi-user.target

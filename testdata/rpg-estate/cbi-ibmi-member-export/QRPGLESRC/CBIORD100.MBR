@@ -1,0 +1,13 @@
+**free
+dcl-f ORDERDSP workstn;
+dcl-f ORDHDR usage(*output);
+
+dcl-proc SubmitOrder export;
+  dcl-pi *n end-pi;
+
+  exfmt ORENTRY;
+  write ORDHDR;
+end-proc;
+
+SubmitOrder();
+return;

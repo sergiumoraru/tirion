@@ -1,0 +1,89 @@
+{
+  "language": "rpgle",
+  "functions": [
+    "_MAIN"
+  ],
+  "imports": [
+    {
+      "path": "VERSION",
+      "names": null,
+      "is_default": false,
+      "is_namespace": false
+    },
+    {
+      "path": "CONFIGS",
+      "names": null,
+      "is_default": false,
+      "is_namespace": false
+    },
+    {
+      "path": "SRCPF",
+      "names": null,
+      "is_default": false,
+      "is_namespace": false
+    },
+    {
+      "path": "HTTPAPI_H",
+      "names": null,
+      "is_default": false,
+      "is_namespace": false
+    }
+  ],
+  "calls": {
+    "_MAIN": [
+      "QCMDEXC"
+    ]
+  },
+  "data_accesses": [
+    {
+      "function": "_MAIN",
+      "entity": "SRCPF",
+      "access": "read"
+    },
+    {
+      "function": "_MAIN",
+      "entity": "CONFIG2S",
+      "access": "write"
+    },
+    {
+      "function": "_MAIN",
+      "entity": "CONFIG2F",
+      "access": "write"
+    },
+    {
+      "function": "_MAIN",
+      "entity": "CONFIG3F",
+      "access": "write"
+    },
+    {
+      "function": "_MAIN",
+      "entity": "CONFIG2C",
+      "access": "display"
+    },
+    {
+      "function": "_MAIN",
+      "entity": "CONFIGS",
+      "access": "display"
+    },
+    {
+      "function": "_MAIN",
+      "entity": "CONFIGS1",
+      "access": "display"
+    },
+    {
+      "function": "_MAIN",
+      "entity": "CONFIG3C",
+      "access": "display"
+    },
+    {
+      "function": "_MAIN",
+      "entity": "CONFIGS4",
+      "access": "display"
+    },
+    {
+      "function": "_MAIN",
+      "entity": "CONFIGS5",
+      "access": "display"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "language": "clle",
+  "functions": [
+    "PACKAGE"
+  ],
+  "imports": [],
+  "calls": {
+    "PACKAGE": [
+      "INSTALL"
+    ]
+  },
+  "data_accesses": []
+}

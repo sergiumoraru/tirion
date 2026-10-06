@@ -1,0 +1,16 @@
+{
+  "language": "dspf",
+  "required_classes": [
+    "RESOURCES",
+    "RESOURCES.HEADER",
+    "RESOURCES.ROWS",
+    "RESOURCES.CONTROL",
+    "RESOURCES.FOOTER"
+  ],
+  "required_fields": [
+    { "class": "RESOURCES.HEADER", "name": "RESOURCEID", "field_type": "24A" },
+    { "class": "RESOURCES.HEADER", "name": "MESSAGE", "field_type": "78" },
+    { "class": "RESOURCES.ROWS", "name": "LABEL", "field_type": "20A" },
+    { "class": "RESOURCES.CONTROL", "name": "FILTER", "field_type": "20A" }
+  ]
+}

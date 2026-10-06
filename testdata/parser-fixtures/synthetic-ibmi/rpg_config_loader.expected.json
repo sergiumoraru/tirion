@@ -1,0 +1,37 @@
+{
+  "language": "rpgle",
+  "functions": [
+    "_MAIN"
+  ],
+  "imports": [
+    {
+      "path": "SRCPF",
+      "names": null,
+      "is_default": false,
+      "is_namespace": false
+    },
+    {
+      "path": "VERSION",
+      "names": null,
+      "is_default": false,
+      "is_namespace": false
+    }
+  ],
+  "calls": {
+    "_MAIN": [
+      "QCMDEXC"
+    ]
+  },
+  "data_accesses": [
+    {
+      "function": "_MAIN",
+      "entity": "CONFIG2S",
+      "access": "write"
+    },
+    {
+      "function": "_MAIN",
+      "entity": "SRCPF",
+      "access": "read"
+    }
+  ]
+}

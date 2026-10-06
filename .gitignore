@@ -1,0 +1,80 @@
+# Binaries (in root directory only)
+/parse
+/context
+/trace
+/ask
+/create-edges
+/extract-http
+/extract-sqs
+/extract-java-intel
+/extract-java-calls
+/extract-spring
+/extract-ts-intel
+/embed
+/test-java-parser
+/test-ts-parser
+/test-config
+/sync-graph
+/serve
+/serve.new
+/tirionctl
+/impact
+/impact-report
+/triage
+/mcp-guard
+/bin/
+/go/*
+/tmp
+/tirion-app
+/.modcache
+
+# Distribution builds
+/dist/
+
+# Release signing keys and local private keys
+keys/
+
+# Local MCP wiring/debug helpers
+.mcp.json
+mcp-guard-wrapper.sh
+
+# IDE and local agent state
+.idea/
+.vscode/
+.claude/
+*.swp
+
+# OS
+.DS_Store
+
+# Test output
+*.test
+coverage.out
+.gocache
+.gomodcache
+
+# Local env files
+.env
+.env.local
+.env.*
+!.env.example
+*.pem
+*.p12
+*.pfx
+/license.json
+/repos/
+/release-assets/
+
+/license-gen
+/mcp-intel
+.gocache-linux/
+.docker-build-out/
+frontend/tsconfig.tsbuildinfo
+frontend/tsconfig.node.tsbuildinfo
+/tirion
+/extract-eventbridge
+/parse-all
+scripts/kill-port.sh
+DOCS/client
+examples/
+AGENTS.md

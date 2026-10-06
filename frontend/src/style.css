@@ -1,0 +1,366 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Root viewport lock: body should not scroll, main content pane scrolls instead */
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+/* Scrollbar — dark mode */
+.dark ::-webkit-scrollbar,
+.dark::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track,
+.dark::-webkit-scrollbar-track {
+  background: #111111;
+}
+
+.dark ::-webkit-scrollbar-thumb,
+.dark::-webkit-scrollbar-thumb {
+  background: #444444;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover,
+.dark::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
+/* Scrollbar — light mode */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fff;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Code/monospace text */
+.font-mono {
+  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, monospace;
+}
+
+/* Global loader shape */
+.animate-spin {
+  border-radius: 9999px;
+}
+
+/* Menuconfig skin (third theme mode) */
+html.theme-menuconfig,
+html.theme-menuconfig body {
+  background: #1f379c;
+}
+
+/* Menu theme scrollbar override (menu mode keeps .dark class active) */
+html.theme-menuconfig,
+html.theme-menuconfig body,
+html.theme-menuconfig #app,
+html.theme-menuconfig #app > main {
+  scrollbar-color: #7a84a6 #cfd3dc;
+}
+
+html.theme-menuconfig ::-webkit-scrollbar,
+html.theme-menuconfig::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+html.theme-menuconfig ::-webkit-scrollbar-track,
+html.theme-menuconfig::-webkit-scrollbar-track {
+  background: #cfd3dc !important;
+}
+
+html.theme-menuconfig ::-webkit-scrollbar-thumb,
+html.theme-menuconfig::-webkit-scrollbar-thumb {
+  background: #7a84a6 !important;
+}
+
+html.theme-menuconfig ::-webkit-scrollbar-thumb:hover,
+html.theme-menuconfig::-webkit-scrollbar-thumb:hover {
+  background: #667194 !important;
+}
+
+html.theme-menuconfig #app {
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 10px;
+  background:
+    linear-gradient(180deg, rgba(103, 131, 239, 0.16) 0%, rgba(18, 38, 114, 0.28) 100%),
+    #1f379c;
+}
+
+html.theme-menuconfig #app > nav {
+  margin: 2px 2px 12px 2px;
+  border-color: #7a84a6 !important;
+  background: #b8bcc8 !important;
+  box-shadow:
+    inset 0 0 0 2px #d9dce4,
+    0 0 0 2px #1a2b76;
+}
+
+html.theme-menuconfig #app > main {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 2px solid #7a84a6;
+  background: #c8ccd6;
+  box-shadow:
+    inset 0 0 0 2px #ebedf2,
+    0 0 0 2px #1a2b76;
+}
+
+html.theme-menuconfig main div.border-2 {
+  box-shadow:
+    inset 1px 1px 0 rgba(244, 246, 252, 0.95),
+    inset -1px -1px 0 rgba(121, 132, 170, 0.75);
+}
+
+html.theme-menuconfig .bg-white,
+html.theme-menuconfig .dark\:bg-n-950,
+html.theme-menuconfig .dark\:bg-n-900,
+html.theme-menuconfig .dark\:bg-n-800,
+html.theme-menuconfig .bg-gray-50,
+html.theme-menuconfig [class*='bg-n-'] {
+  background: #cfd3dc !important;
+}
+
+html.theme-menuconfig .border-black,
+html.theme-menuconfig .dark\:border-n-600,
+html.theme-menuconfig .border-gray-300,
+html.theme-menuconfig [class*='border-n-'] {
+  border-color: #7a84a6 !important;
+}
+
+html.theme-menuconfig .text-black,
+html.theme-menuconfig .dark\:text-n-300,
+html.theme-menuconfig .text-n-300 {
+  color: #101626 !important;
+}
+
+html.theme-menuconfig .text-n-400,
+html.theme-menuconfig .text-n-500 {
+  color: #394058 !important;
+}
+
+html.theme-menuconfig .bg-accent {
+  background: #1933a8 !important;
+  color: #ebeeff !important;
+  border-color: #768ee0 !important;
+}
+
+html.theme-menuconfig .bg-accent .text-n-500,
+html.theme-menuconfig .bg-accent .text-n-400,
+html.theme-menuconfig .bg-accent .text-n-300,
+html.theme-menuconfig .bg-accent .text-black,
+html.theme-menuconfig .bg-blue-900 .text-n-500,
+html.theme-menuconfig .bg-blue-900 .text-n-400,
+html.theme-menuconfig .bg-blue-900 .text-n-300 {
+  color: #d7e2ff !important;
+}
+
+html.theme-menuconfig .bg-accent .text-accent,
+html.theme-menuconfig .bg-blue-900 .text-accent {
+  color: #f1f5ff !important;
+}
+
+html.theme-menuconfig .text-accent {
+  color: #1a3abd !important;
+}
+
+/* border-accent had no menu-theme override, so it stayed lime green (#32CD32)
+   while text-accent rendered blue — making accent-bordered tags mismatch. */
+html.theme-menuconfig .border-accent {
+  border-color: #768ee0 !important;
+}
+
+/* Menu theme should not inherit dark-theme green utilities */
+html.theme-menuconfig [class*='text-green-'],
+html.theme-menuconfig [class*='text-emerald-'] {
+  color: #1a3abd !important;
+}
+
+html.theme-menuconfig [class*='bg-green-'],
+html.theme-menuconfig [class*='bg-emerald-'] {
+  background: #2b46ad !important;
+  color: #f2f5ff !important;
+}
+
+html.theme-menuconfig [class*='border-green-'],
+html.theme-menuconfig [class*='border-emerald-'] {
+  border-color: #768ee0 !important;
+}
+
+html.theme-menuconfig input,
+html.theme-menuconfig textarea,
+html.theme-menuconfig select {
+  color: #101626 !important;
+  background: #f4f5f8 !important;
+  border-color: #7a84a6 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+html.theme-menuconfig input:focus,
+html.theme-menuconfig textarea:focus,
+html.theme-menuconfig select:focus {
+  outline: none !important;
+  color: #f3f6ff !important;
+  background: #2748b8 !important;
+  border-color: #8aa5ff !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(176, 194, 255, 0.9),
+    0 0 0 1px rgba(20, 36, 102, 0.85) !important;
+}
+
+html.theme-menuconfig input::placeholder,
+html.theme-menuconfig textarea::placeholder {
+  color: #7d85a1 !important;
+}
+
+html.theme-menuconfig input:focus::placeholder,
+html.theme-menuconfig textarea:focus::placeholder {
+  color: #c8d4ff !important;
+}
+
+html.theme-menuconfig input[type='checkbox'],
+html.theme-menuconfig input[type='radio'] {
+  accent-color: #1d3eb4;
+}
+
+html.theme-menuconfig button {
+  border-color: #7a84a6 !important;
+}
+
+html.theme-menuconfig main .rounded-none > h2.text-lg.font-bold.uppercase {
+  margin: -20px -20px 12px -20px;
+  padding: 8px 10px;
+  background: #233faa;
+  color: #eef2ff !important;
+  border-bottom: 1px solid #8aa0e8;
+  box-shadow: inset 0 1px 0 rgba(175, 191, 244, 0.95);
+  letter-spacing: 0.08em;
+}
+
+html.theme-menuconfig main .rounded-none > .text-xs.uppercase.tracking-widest {
+  color: #47506e !important;
+  letter-spacing: 0.12em;
+}
+
+html.theme-menuconfig h1.text-lg.font-bold.uppercase {
+  color: #132459 !important;
+}
+
+html.theme-menuconfig .text-yellow-600,
+html.theme-menuconfig .text-yellow-400,
+html.theme-menuconfig .dark\:text-yellow-400 {
+  color: #2a4fca !important;
+}
+
+html.theme-menuconfig .text-purple-400 {
+  color: #2a4fca !important;
+}
+
+/* Menu theme warning palette: improve contrast for amber warning cards */
+html.theme-menuconfig .bg-amber-50,
+html.theme-menuconfig .dark\:bg-amber-900\/20 {
+  background: #e8dfbf !important;
+}
+
+html.theme-menuconfig .border-amber-500,
+html.theme-menuconfig .dark\:border-amber-700 {
+  border-color: #9d7b2f !important;
+}
+
+html.theme-menuconfig .text-amber-700,
+html.theme-menuconfig .text-amber-800,
+html.theme-menuconfig .dark\:text-amber-200 {
+  color: #4a3a12 !important;
+}
+
+html.theme-menuconfig .border-amber-400,
+html.theme-menuconfig .border-amber-500,
+html.theme-menuconfig .dark\:border-amber-700 {
+  border-color: #9d7b2f !important;
+}
+
+html.theme-menuconfig .bg-red-50,
+html.theme-menuconfig .dark\:bg-red-900\/20 {
+  background: #e7caca !important;
+}
+
+html.theme-menuconfig .text-red-700,
+html.theme-menuconfig .text-red-800,
+html.theme-menuconfig .text-red-900,
+html.theme-menuconfig .dark\:text-red-300,
+html.theme-menuconfig .dark\:text-red-200,
+html.theme-menuconfig .dark\:text-red-100 {
+  color: #5b1717 !important;
+}
+
+html.theme-menuconfig .border-red-400,
+html.theme-menuconfig .border-red-500,
+html.theme-menuconfig .dark\:border-red-700,
+html.theme-menuconfig .dark\:border-red-500 {
+  border-color: #b44a44 !important;
+}
+
+html.theme-menuconfig .bg-red-900,
+html.theme-menuconfig .bg-yellow-900,
+html.theme-menuconfig .bg-green-900,
+html.theme-menuconfig .bg-blue-900,
+html.theme-menuconfig .bg-orange-900 {
+  background: #2b46ad !important;
+  color: #f2f5ff !important;
+}
+
+/* Trace badge overrides: /50 opacity variants used by TraceNode, FlowView, etc. */
+html.theme-menuconfig .bg-rose-900\/50,
+html.theme-menuconfig .bg-amber-900\/50,
+html.theme-menuconfig .bg-yellow-900\/50,
+html.theme-menuconfig .bg-emerald-900\/50,
+html.theme-menuconfig .bg-blue-900\/50,
+html.theme-menuconfig .bg-purple-900\/50 {
+  background: #2b46ad !important;
+}
+
+html.theme-menuconfig .text-rose-300,
+html.theme-menuconfig .text-amber-300,
+html.theme-menuconfig .text-yellow-300,
+html.theme-menuconfig .text-emerald-300,
+html.theme-menuconfig .text-purple-300 {
+  color: #ebeeff !important;
+}
+
+html.theme-menuconfig .bg-purple-500 {
+  background: #2a4fc8 !important;
+}
+
+html.theme-menuconfig .bg-cyan-400,
+html.theme-menuconfig .bg-rose-500 {
+  background: #5778e0 !important;
+}
+
+/* Menu theme spinner color */
+html.theme-menuconfig .animate-spin {
+  border-color: #2846b0 !important;
+  border-top-color: transparent !important;
+}

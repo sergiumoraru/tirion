@@ -1,0 +1,26 @@
+{
+  "language": "rpgle",
+  "functions": [
+    "RunClCmd",
+    "QshExec",
+    "QshBash",
+    "QshCall"
+  ],
+  "imports": [],
+  "calls": {
+    "RunClCmd": [
+      "QCMDEXC"
+    ],
+    "QshExec": [
+      "QCMDEXC"
+    ],
+    "QshBash": [
+      "QCMDEXC"
+    ],
+    "QshCall": [
+      "QCMDEXC",
+      "QSHGETPARR"
+    ]
+  },
+  "data_accesses": []
+}

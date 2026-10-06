@@ -1,0 +1,29 @@
+{
+  "language": "rpgle",
+  "functions": [
+    "_MAIN",
+    "Prog_Cancelled"
+  ],
+  "imports": [
+    {
+      "path": "QIWS/QCUSTCDT",
+      "names": null,
+      "is_default": false,
+      "is_namespace": false
+    }
+  ],
+  "calls": {
+    "_MAIN": [
+      "Prog_Cancelled",
+      "QCMDEXC"
+    ],
+    "Prog_Cancelled": []
+  },
+  "data_accesses": [
+    {
+      "function": "_MAIN",
+      "entity": "QCUSTCDT",
+      "access": "read"
+    }
+  ]
+}

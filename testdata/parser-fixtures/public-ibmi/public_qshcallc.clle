@@ -1,0 +1,27 @@
+/* excerpted from richardschoen/QshOni QSHCALLC.CLLE */
+             PGM        PARM(&CMDLINE &RETURN01 &RETURN02)
+
+             DCL        VAR(&RETURN01) TYPE(*CHAR) LEN(255)
+             DCL        VAR(&RETURN02) TYPE(*CHAR) LEN(255)
+             DCL        VAR(&CMDLINE) TYPE(*CHAR) LEN(5000)
+             DCL        VAR(&OUTFILE) TYPE(*CHAR) LEN(20)
+
+             MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(ERRORS))
+
+             CHGVAR     VAR(&RETURN01) VALUE(' ')
+             CHGVAR     VAR(&RETURN02) VALUE(' ')
+             CHKOBJ     OBJ(QTEMP/QSHRTNCOD) OBJTYPE(*DTAARA)
+             MONMSG     MSGID(CPF0000) EXEC(DO)
+             CRTDTAARA  DTAARA(QTEMP/QSHRTNCOD) TYPE(*DEC) LEN(5 0)
+             ENDDO
+
+             CALL       PGM(QSHSTDOUTR)
+             MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(ERRORS))
+
+             CALL       PGM(QSHSTDOUTR)
+             MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(ERRORS))
+
+             ENDPGM
+
+ERRORS:
+             ENDPGM

@@ -1,0 +1,37 @@
+{
+  "language": "dspf",
+  "required_classes": [
+    "CONFIGS",
+    "CONFIGS.CONFIGS1",
+    "CONFIGS.CONFIG2S",
+    "CONFIGS.CONFIG2C",
+    "CONFIGS.CONFIG2F",
+    "CONFIGS.CONFIG3S",
+    "CONFIGS.CONFIG3C",
+    "CONFIGS.CONFIG3F",
+    "CONFIGS.CONFIGS4",
+    "CONFIGS.CONFIGS5"
+  ],
+  "required_fields": [
+    {
+      "class": "CONFIGS.CONFIGS1",
+      "name": "SCVERSION",
+      "field_type": "42A"
+    },
+    {
+      "class": "CONFIGS.CONFIG2S",
+      "name": "SCLINE",
+      "field_type": "78"
+    },
+    {
+      "class": "CONFIGS.CONFIG3S",
+      "name": "SCLINE",
+      "field_type": "78A"
+    },
+    {
+      "class": "CONFIGS.CONFIGS5",
+      "name": "SCINSTLIB",
+      "field_type": "10A"
+    }
+  ]
+}

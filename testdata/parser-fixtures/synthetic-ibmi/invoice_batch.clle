@@ -1,0 +1,8 @@
+PGM
+             DCL        VAR(&REGION) TYPE(*CHAR) LEN(2) VALUE('NW')
+             MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(FAILED))
+             CALL       PGM(*LIBL/INVOICE_SCAN) PARM(&REGION)
+             RETURN
+ FAILED:
+             SNDPGMMSG  MSG('Invoice scan failed') MSGTYPE(*ESCAPE)
+ENDPGM

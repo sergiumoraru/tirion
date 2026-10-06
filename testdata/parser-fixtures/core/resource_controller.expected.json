@@ -1,0 +1,60 @@
+{
+  "language": "java",
+  "class": {
+    "name": "ResourceController",
+    "is_abstract": true,
+    "extends": "BaseController",
+    "implements": [
+      "ResourcePort"
+    ],
+    "modifiers": [
+      "abstract",
+      "public"
+    ],
+    "type_params": [
+      {
+        "name": "T",
+        "bound_type": "extends",
+        "bounds": [
+          "Number"
+        ]
+      }
+    ]
+  },
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/resources/{id}",
+      "handler": "ResourceController.getResource"
+    },
+    {
+      "method": "POST",
+      "path": "/api/resources/save",
+      "handler": "ResourceController.saveResource"
+    }
+  ],
+  "signatures": {
+    "ResourceController.format": [
+      "format(Integer)",
+      "format(String)"
+    ],
+    "ResourceController.getResource": [
+      "getResource(T)"
+    ],
+    "ResourceController.normalize": [
+      "normalize(R)"
+    ]
+  },
+  "method_type_params": {
+    "ResourceController.normalize": [
+      {
+        "name": "R",
+        "bound_type": "extends",
+        "bounds": [
+          "Comparable<R>"
+        ]
+      }
+    ]
+  },
+  "min_lambdas": 1
+}

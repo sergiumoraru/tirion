@@ -1,0 +1,53 @@
+{
+  "language": "typescript",
+  "functions": [
+    "_module_",
+    "_anonymous_L13_C41",
+    "_anonymous_L18_C31",
+    "saveResource",
+    "routeWithInlineHandler"
+  ],
+  "imports": [
+    {
+      "path": "./client",
+      "names": [
+        "defaultApi",
+        "fetchResourceAlias",
+        "saveResource"
+      ],
+      "is_default": true,
+      "is_namespace": false
+    },
+    {
+      "path": "./resource-utils",
+      "names": [
+        "ResourceUtils"
+      ],
+      "is_default": false,
+      "is_namespace": true
+    }
+  ],
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/resource/:id",
+      "handler": "_anonymous_L18_C31"
+    },
+    {
+      "method": "POST",
+      "path": "/resource/save",
+      "handler": "saveResource"
+    }
+  ],
+  "type_aliases": [
+    {
+      "name": "ResourceEnvelope",
+      "type_params": [
+        "T"
+      ]
+    }
+  ],
+  "interfaces": [
+    "ResourceRecord"
+  ]
+}

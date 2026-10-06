@@ -1,0 +1,11 @@
+**free
+dcl-pr AuditEvent extproc('CBIAUDLOG');
+  Domain char(12) const;
+  RefId char(12) const;
+end-pr;
+
+dcl-pr ComputeTax extproc('CBITAXSRV');
+  State char(2) const;
+  OrderTotal packed(11:2) const;
+  TaxAmount packed(11:2);
+end-pr;

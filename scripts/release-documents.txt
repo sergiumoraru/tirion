@@ -1,0 +1,12 @@
+README.md
+SETUP.md
+CONTRIBUTING.md
+SECURITY.md
+testdata/rpg-estate/README.md
+testdata/estate-fixtures/README.md
+testdata/parser-fixtures/public-ibmi/NOTICE.md
+DOCS/snippets/impact-report.gitlab-ci.yml
+DOCS/cli-reference.md
+DOCS/mcp.md
+DOCS/server-api.md
+CODE_OF_CONDUCT.md

@@ -1,0 +1,21 @@
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      PRINT
+     A                                      CF03
+     A          R CONFIGS1
+     A            SCVERSION     42A  O  7 19
+     A          R CONFIG2S                  SFL
+     A            SCLINE        78   O  3  2
+     A          R CONFIG2C                  SFLCTL(CONFIG2S)
+     A                                      CF08
+     A          R CONFIG2F
+     A          R CONFIG3S                  SFL
+     A            SCLINE        78A  O  6  2
+     A          R CONFIG3C                  SFLCTL(CONFIG3S)
+     A          R CONFIG3F
+     A          R CONFIGS4
+     A            SCVERSION     42A  O  7 19
+     A          R CONFIGS5
+     A            SCSRCLIB      10A  B 11 55
+     A            SCINSTLIB     10A  B 13 55
+     A            SCUSELIBL      1   B 15 55
+     A            SCMSG         32A  O 18 25DSPATR(HI)

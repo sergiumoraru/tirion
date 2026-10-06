@@ -1,0 +1,33 @@
+impact_report:
+  stage: test
+  # Keep this version aligned with go.mod.
+  image: golang:1.26.8
+  rules:
+    - if: '$ENABLE_ESTATE_IMPACT == "true" && $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_PROJECT_ID == $CI_PROJECT_ID'
+  variables:
+    GIT_DEPTH: "0"
+  script:
+    - go build -o impact-report ./cmd/impact-report
+    - git fetch origin "$CI_DEFAULT_BRANCH"
+    - |
+      # impact-report sends TIRION_API_TOKEN to the (HTTPS) Tirion server.
+      if [ -z "$IMPACT_SERVER" ] || [ -z "$TIRION_API_TOKEN" ] || [ -z "$GITLAB_TOKEN" ]; then
+        echo "Configure IMPACT_SERVER and masked TIRION_API_TOKEN and GITLAB_TOKEN variables for estate reporting" >&2
+        exit 1
+      fi
+    - |
+      if [ -n "$IMPACT_REPO" ]; then
+        git diff -U0 "origin/$CI_DEFAULT_BRANCH...HEAD" | ./impact-report -repo="$IMPACT_REPO" -server "$IMPACT_SERVER" -out impact.md
+      else
+        git diff -U0 "origin/$CI_DEFAULT_BRANCH...HEAD" | ./impact-report -server "$IMPACT_SERVER" -out impact.md
+      fi
+    - |
+      # Pass the GitLab token through a header file, not the command line.
+      printf 'PRIVATE-TOKEN: %s\n' "$GITLAB_TOKEN" > "$CI_BUILDS_DIR/.gitlab-token-header"
+      curl --fail-with-body --silent --show-error --request POST \
+        --header @"$CI_BUILDS_DIR/.gitlab-token-header" \
+        --data-urlencode "body=$(cat impact.md)" \
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes"
+  artifacts:
+    paths:
+      - impact.md

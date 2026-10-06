@@ -1,0 +1,9 @@
+{
+  "language": "clle",
+  "functions": ["INVOICE_BATCH"],
+  "imports": [],
+  "calls": {
+    "INVOICE_BATCH": ["INVOICE_SCAN"]
+  },
+  "data_accesses": []
+}

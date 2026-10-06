@@ -1,0 +1,15 @@
+[Unit]
+Description=Tirion nightly repo refresh and re-index
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=tirion
+Group=tirion
+Environment=HOME=/var/lib/tirion
+EnvironmentFile=/opt/tirion/.env
+EnvironmentFile=-/etc/tirion/github.env
+ExecStart=/opt/tirion/bin/nightly-refresh.sh
+StandardOutput=append:/var/log/tirion/refresh.log
+StandardError=append:/var/log/tirion/refresh.log

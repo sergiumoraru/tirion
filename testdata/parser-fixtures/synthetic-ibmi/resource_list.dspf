@@ -1,0 +1,18 @@
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      CA03(03)
+     A          R HEADER
+     A                                  1  2'Find resource'
+     A            RESOURCEID    24A  B  2  2
+     A            MESSAGE       78   O 23  2
+     A          R ROWS                      SFL
+     A            LABEL         20A  O  5  2
+     A            STATE          8A  O  5 24
+     A          R CONTROL                   SFLCTL(ROWS)
+     A                                      SFLSIZ(100)
+     A                                      SFLPAG(10)
+     A  01                                  SFLDSP
+     A                                      SFLDSPCTL
+     A N01                                  SFLCLR
+     A            FILTER        20A  B  3  2
+     A          R FOOTER
+     A                                 24  2'F3=Close'

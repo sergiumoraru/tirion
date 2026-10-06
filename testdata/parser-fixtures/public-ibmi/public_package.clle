@@ -1,0 +1,19 @@
+/* excerpted from Scott Klement httpapi PACKAGE.clle */
+PGM          PARM(&TGTRLS)
+             DCL        VAR(&INSTLIB) TYPE(*CHAR) LEN(10) +
+                          VALUE('LIBHTTP')
+             DCL        VAR(&TGTRLS) TYPE(*CHAR) LEN(10)
+
+             DLTPGM     PGM(&INSTLIB/INSTALL)
+             MONMSG CPF2105
+             DLTPGM     PGM(&INSTLIB/INSTALLR4)
+             MONMSG CPF2105
+             DLTPGM     PGM(&INSTLIB/CONFIGR4)
+             MONMSG CPF2105
+             DLTF       FILE(&INSTLIB/CONFIGS)
+             MONMSG CPF2105
+
+             CRTCLPGM   PGM(INSTALL) SRCFILE(&INSTLIB/QCLSRC)
+             CALL       PGM(INSTALL)
+
+             ENDPGM

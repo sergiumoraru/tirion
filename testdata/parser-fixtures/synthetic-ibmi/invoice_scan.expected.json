@@ -1,0 +1,23 @@
+{
+  "language": "sqlrpgle",
+  "functions": ["_MAIN", "INVOICE_SCAN", "ReadNext"],
+  "imports": [
+    {
+      "path": "../copy/AUDIT_P.RPGLE",
+      "names": null,
+      "is_default": false,
+      "is_namespace": false
+    }
+  ],
+  "calls": {
+    "INVOICE_SCAN": ["ReadNext", "RecordFailure"],
+    "ReadNext": ["RecordFailure"]
+  },
+  "data_accesses": [
+    {
+      "function": "INVOICE_SCAN",
+      "entity": "INVOICE_QUEUE",
+      "access": "read"
+    }
+  ]
+}

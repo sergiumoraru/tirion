@@ -1,0 +1,23 @@
+{
+  "language": "typescript",
+  "functions": [
+    "_module_",
+    "submitForm",
+    "httpTrigger",
+    "pdfExport"
+  ],
+  "sqs_producers": [
+    {
+      "function": "httpTrigger",
+      "queue_name": "APP_PUBLISH_DOCUMENT_QUEUE"
+    }
+  ],
+  "http_calls": [
+    {
+      "function": "pdfExport",
+      "method": "POST",
+      "url_pattern": "/reports/:productName/export-audit/:filename",
+      "client_type": "form"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "language": "java",
+  "sqs_producers": [
+    {
+      "function": "EventPublisher.sendEventUpdate",
+      "queue_name": "EVENT_UPDATES"
+    }
+  ],
+  "sqs_consumers": [
+    {
+      "class_name": "BaseEventConsumer",
+      "queue_name": "EVENT_UPDATES",
+      "handler_method": "handle"
+    },
+    {
+      "class_name": "PrefixedConsumer",
+      "queue_name": "OPERATIONAL_MESSAGE",
+      "handler_method": "handle"
+    },
+    {
+      "class_name": "QueueUrlAssignmentConsumer",
+      "queue_name": "EVENT_UPDATES",
+      "handler_method": "handle"
+    }
+  ]
+}
